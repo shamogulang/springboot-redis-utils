@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: dev
+    include: ${spring.profiles.active}
+  application:
+    name: redisutils-service
+
+server:
+  port: 8888
+  undertow:
+    worker-threads: 128
+    accesslog:
+      enabled: true
+      dir: ./log
+      pattern: "%{DATE_TIME} %{REMOTE_IP} '%{REQUEST_LINE}' %{RESPONSE_CODE} (%{RESPONSE_TIME} ms) %{i,X-ITOUCHTV-USER-ID} %{i,X-ITOUCHTV-DEVICE-ID} %{q,fromSource} %{q,fromSourceParm} %{i,X-ITOUCHTV-APP-VERSION} %{i,X-ITOUCHTV-CLIENT} %{i,X-ITOUCHTV-BRANCH} %{i,X-ITOUCHTV-INSTALL-CHANNEL}"
