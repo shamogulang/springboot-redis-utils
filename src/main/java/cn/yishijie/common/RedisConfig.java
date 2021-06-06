@@ -47,6 +47,7 @@ public class RedisConfig extends CachingConfigurerSupport {
 
     /**
      * 采用RedisCacheManager作为缓存管理器
+     *
      * @param connectionFactory
      */
     @Bean
@@ -69,4 +70,3 @@ public class RedisConfig extends CachingConfigurerSupport {
         return template;
     }
 }
-

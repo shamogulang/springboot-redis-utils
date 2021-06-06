@@ -3,15 +3,24 @@ package cn.yishijie.common;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.redisson.api.RMap;
+import org.redisson.api.RSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
@@ -22,6 +31,60 @@ public class StringRedisUtilsTest {
     private StringRedisUtils stringRedisUtils;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
+
+    public String getTodayYyyyMmDd(){
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return yyyyMMdd.format(now);
+    }
+
+    public String getYyyyMm(){
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyyMM");
+        return yyyyMMdd.format(now);
+    }
+
+    public String getYyyy(){
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy");
+        return yyyyMMdd.format(now);
+    }
+
+    public int weekNum(){
+        LocalDate now = LocalDate.now();
+        System.out.println(now.toString());
+        int i = now.get(WeekFields.of(DayOfWeek.MONDAY,1).weekOfYear());
+        System.out.println(i);
+        return i;
+    }
+
+
+    @Test
+    public void testRedission(){
+        RMap<String, Boolean> redission = redissonClient.getMap("memory:rule:last:year:today:"+getTodayYyyyMmDd());
+        redission.expire(2, TimeUnit.DAYS);
+        Boolean s = redission.putIfAbsent("456", true);
+        System.out.println(s);
+
+        RMap<String, Boolean> map = redissonClient.getMap("memory:rule:month:" + getYyyyMm());
+        boolean expire = map.expire(153, TimeUnit.DAYS);
+        Boolean aBoolean = map.putIfAbsent("456", true);
+        System.out.println(aBoolean);
+
+
+        RMap<String, Boolean> map1 = redissonClient.getMap("memory:rule:week:" + getYyyy() + ":" + weekNum());
+        map1.expire(153, TimeUnit.DAYS);
+        Boolean o = map1.putIfAbsent("456", true);
+        System.out.println(o);
+
+        RMap<String, Boolean> map2 = redissonClient.getMap("memory:rule:weekend:" + getYyyy() + ":" + weekNum());
+        map2.expire(153, TimeUnit.DAYS);
+        Boolean o1 = map2.putIfAbsent("456", true);
+        System.out.println(o1);
+    }
+
     @Test
     public void setString() {
         String key = "setString-key";
